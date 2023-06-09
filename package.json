@@ -1,0 +1,15 @@
+{
+  "dcloudext": {
+    "category": [
+      "前端组件",
+      "通用组件"
+    ]
+  },
+  "devDependencies": {
+    "mqtt": "^3.0.0",
+    "uuid": "^9.0.0"
+  },
+  "dependencies": {
+    "mqtt": "^3.0.0"
+  }
+}

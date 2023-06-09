@@ -1,0 +1,1034 @@
+<template>
+	<view>
+
+
+
+
+
+
+		<!-- #ifndef H5 -->
+		<!-- 主播本地 -->
+		<trtc-local-view v-if="status == 1" :viewId="userId" style="position: fixed;z-index: 1;top:0;left: 0;"
+			:style="{height:screenHeight+'px',width:screenWidth + 'px'}"></trtc-local-view>
+		<!-- 主播本地 -->
+
+		<!-- 观众远端 -->
+		<trtc-remote-view v-if="status == 2 && remoteUserId" :userId="remoteUserId" :viewId="remoteUserId"
+			style="position: fixed;z-index: 1;top:0;left: 0;"
+			:style="{height:screenHeight+'px',width:screenWidth + 'px'}">
+		</trtc-remote-view>
+
+
+		<!-- #endif -->
+
+
+
+
+
+
+		<view style="position: fixed;z-index: 4;top:0;left: 0;" :style="{width:screenWidth + 'px'}">
+			<!-- #ifdef APP-NVUE -->
+			<view style="width:200px;height:200px;overflow: hidden;position: fixed;right:2000px;">
+				<!-- 观众被连麦 -->
+				<trtc-local-view v-if="status == 2" :viewId="userId"
+					style="width:200px;height: 200px;background-color:#000;">
+				</trtc-local-view>
+				<!-- 观众被连麦 -->
+				<!-- 其他观众 -->
+				<trtc-remote-view style="width:200px;height: 200px;background-color:#000;" v-if="maikeInfo"
+					:userId="maikeInfo.userId" :viewId="maikeInfo.userId">
+				</trtc-remote-view>
+				<!-- <trtc-remote-view style="width:200px;height: 200px;background-color:#000;" v-if="status == 1"
+					:userId="37755" :viewId="37755">
+				</trtc-remote-view> -->
+
+			</view>
+			<!-- #endif -->
+			<view>
+				<!-- 直播详情 -->
+				<liveDetail v-if="status == 1 && roomStatus == 3"></liveDetail>
+				<!-- 直播详情 -->
+				<!-- 直播结束 -->
+				<liveEnd :info="liveRoomDetail" v-if="status == 2 && roomStatus == 3"></liveEnd>
+				<!-- 直播结束 -->
+
+
+				<statusBar></statusBar>
+				<!-- 头部信息 -->
+				<livesHeader :status="status" :roomId="roomId" @close="uniBack" v-if="liveRoomDetail" :perNum="perNum"
+					:info="liveRoomDetail">
+				</livesHeader>
+				<!-- 头部信息 -->
+
+
+
+				<view v-if="liveRoomDetail" :style="{width:screenWidth}"
+					style="justify-content: center;align-items: center;">
+					<view @tap.stop="click(startRoom)" v-if="status == 1 && roomStatus == 1" class="start-live-btn">
+						<text class="fs-28 color-ffffff">开始直播</text>
+					</view>
+				</view>
+
+
+
+
+
+
+
+
+
+
+
+				<view class="live-box-bottom">
+
+					<!-- 进房列表 -->
+					<view style="position: relative;">
+						<roomUsers :info="liveRoomDetail" :roomId="roomId" ref="roomUsers"></roomUsers>
+					</view>
+					<!-- 进房列表 -->
+					<view style="padding-left:20rpx;">
+						<goodsBox :liveId="liveId"></goodsBox>
+					</view>
+				</view>
+
+
+
+				<!-- 静音 摄像头切换 -->
+				<view class="live-gift-box">
+					<!-- 主播 -->
+					<view v-if="status == 1 && roomStatus == 2" @tap.stop="click(switchCamera)"
+						class="live-gift-send-box flex flex-x-y mt-20">
+						<text class="iconfont1 color-ffffff fs-40">&#xe680;</text>
+					</view>
+					<view v-if="status == 1 && roomStatus == 2" @tap.stop="click(muteLocalAudio)"
+						class="live-gift-send-box flex flex-x-y mt-20">
+						<!-- 正常 -->
+						<text v-if="!localAudioMuteState" class="iconfont1 color-ffffff fs-40"
+							style="color:#FFFFFF;">&#xe61c;</text>
+						<!-- 静音 -->
+						<text v-else class="iconfont1 color-ffffff fs-40" style="color:#EA4335;">&#xe60d;</text>
+					</view>
+				</view>
+				<!-- 静音 摄像头切换 -->
+
+
+
+
+				<livesBottom :status="status" :info="liveRoomDetail"></livesBottom>
+				<likes :liveId="liveId" :roomId="roomId"></likes>
+				<connectUser :info="liveRoomDetail" :status="status" @requestLinkChange="requestLinkChange"
+					@openUserMaike="openUserMaike" :liveId="liveId" :roomId="roomId"></connectUser>
+				<goodsList :liveId="liveId" :status="status" :roomId="roomId" ref="goodsList"></goodsList>
+				<sendGift :liveId="liveId" :roomId="roomId"></sendGift>
+				<giftTime :roomId="roomId"></giftTime>
+				<qq-bottom-input :roomId="roomId"></qq-bottom-input>
+
+
+
+
+
+			</view>
+
+
+		</view>
+
+		<toast-nvue ref="toast"></toast-nvue>
+
+
+
+
+	</view>
+</template>
+
+<script>
+	import {
+		getLiveDetail
+	} from './api/live.js';
+	let request = require('../../utils/request');
+	//引入图片资源
+
+	import liveDetail from './components/live-detail';
+	import liveEnd from './components/live-end';
+	import liveTime from './components/live-time';
+	import livesBottom from '@/components/lives/lives-bottom.vue';
+	import likes from '@/components/lives/likes.vue';
+	import goodsBox from '@/components/lives/goods-box.vue';
+	import livesHeader from '@/components/lives/lives-header.vue';
+	import connectUser from '@/components/lives/connect-user.vue';
+	import goodsList from '@/components/lives/goods-list.vue';
+	import sendGift from '@/pages/live/components/send-gift.vue';
+	import giftTime from '@/pages/live/components/gift-time.vue';
+	import roomUsers from '@/pages/live/components/room-users.vue';
+
+
+
+
+	import permision from "@/TrtcCloud/permission.js";
+	import TrtcCloud from '@/TrtcCloud/lib/index';
+	import {
+		TRTCAppScene,
+		TRTCVideoStreamType,
+		TRTCAudioQuality,
+		TRTCAudioRoute,
+
+	} from '@/TrtcCloud/lib/TrtcDefines';
+	import {
+		genTestUserSig
+	} from '@/debug/GenerateTestUserSig';
+	import TrtcLocalView from '@/TrtcCloud/view/TrtcLocalView';
+	import TrtcRemoteView from '@/TrtcCloud/view/TrtcRemoteView';
+	var roomId = '';
+	var userId = '';
+	let user_info = {};
+
+
+
+
+
+	export default {
+		components: {
+			TrtcLocalView: TrtcLocalView,
+			TrtcRemoteView: TrtcRemoteView,
+			liveDetail,
+			liveEnd,
+			liveTime,
+
+			livesBottom,
+			likes,
+			goodsBox,
+			livesHeader,
+			connectUser,
+			goodsList,
+			sendGift,
+			giftTime,
+			roomUsers
+		},
+		data() {
+			return {
+				customBar: getApp().globalData.customBar,
+				statusbar: getApp().globalData.statusBar,
+				screenHeight: getApp().globalData.screenHeight,
+				screenWidth: getApp().globalData.screenWidth,
+				list: [],
+				show_index: 15,
+				roomId: '', //房间id  群聊房间id就是roomId  单聊id 随机
+				status: 2, //1等待创建(主播啊) 2普通观众
+
+				remoteUserId: '',
+				userId: '',
+				sdkAppId: '',
+				userSig: '',
+				trtcCloud: null,
+				// appScene: TRTCAppScene.TRTCAppSceneVideoCall,
+				appScene: TRTCAppScene.TRTCAppSceneLIVE,
+				// appScene: TRTCAppScene.TRTCAppSceneVideoCall,
+				audioRoute: TRTCAudioRoute.TRTCAudioRouteSpeaker,
+				streamType: TRTCVideoStreamType.TRTCVideoStreamTypeBig,
+				remoteAudioMuteState: false,
+				localAudioMuteState: false,
+				localVideoMuteState: false,
+				gid: '', //群id 有就是群聊 没有就是单聊
+
+
+
+				roomStatus: 1, //1未开始 	2 直播中 	3直播结束
+
+
+				hiddenNotice: true,
+				perNum: 0,
+				liveTimeNum: 0,
+				liveId: '', //直播id
+				liveRoomDetail: null, //直播间信息
+				microphoneInfo: null,
+
+				openUserStatus: false, //是否打开用户麦克风
+				maikeInfo: null, //连麦信息
+				user_info: {},
+			};
+		},
+		computed: {
+			user_id_list() {
+				if (!this.list) this.list = [];
+				return this.list.filter(val => val.status == 2 && val.taboo == 1 && val.closed == 1);
+			}
+		},
+
+		onLoad(e) {
+
+			if (e.liveId) {
+				this.liveId = e.liveId;
+				this.getLiveDeailById();
+			}
+
+			user_info = uni.getStorageSync('user_info') || {};
+			this.user_info = user_info;
+
+			if (e.status) {
+				this.status = e.status; //1等待创建 2等待接听 3通话中
+				if (e.status == 1) {
+					this.admin = true;
+				}
+			}
+
+
+			if (e.status == 2 && e.remoteUserId) {
+				this.remoteUserId = String(e.remoteUserId);
+			}
+
+
+			userId = String(user_info.id);
+			this.userId = String(user_info.id);
+
+
+
+			// #ifdef APP-NVUE
+
+			if (this.status == 2) {
+				setTimeout(() => {
+					this.hiddenNotice = true;
+				}, 10000);
+			}
+
+
+
+
+
+
+			const domModule = uni.requireNativePlugin('dom');
+			domModule.addRule('fontFace', {
+				'fontFamily': "iconfont1",
+				'src': "url('http://at.alicdn.com/t/c/font_4083804_gl9spfdbu8f.ttf?t=1685519407301')"
+			});
+
+			// #endif
+
+			uni.$on('stop_live', (data) => {
+				// console.log('602`````````',data);
+				// this.showToast(JSON.stringify(data));
+				if (data.roomId == this.roomId) {
+					this.roomStatus = 3;
+					if (this.status == 1) {
+						//直播
+						setTimeout(() => {
+							uni.$emit('live-detail-info', data);
+
+						}, 300);
+					}
+				}
+			})
+			uni.$on('live_user_change', data => {
+				if (data && data.type == 'add') {
+					if (data.userId == this.liveRoomDetail.userId) return;
+					if (this.$refs && this.$refs.roomUsers) {
+						this.$refs.roomUsers.add_user({
+							userName: data.userName,
+							userId: data.userId,
+						});
+					}
+
+				}
+				this.perNum = Number(data.perNum)
+			});
+
+
+			// #ifdef APP-NVUE
+
+
+			let pages = getCurrentPages();
+			let page = pages[pages.length - 1];
+			let currentWebview = page.$getAppWebview()
+			currentWebview.setStyle({
+				popGesture: 'none'
+			})
+			// let page = this.$mp.page.$getAppWebview();
+			// page.setStyle({ popGesture: 'none' });
+
+
+
+			// #endif
+
+
+			plus.webview.currentWebview().setStyle({
+				'popGesture': 'none'
+			});
+
+
+
+
+
+
+		},
+		unmounted() {
+
+
+
+			try {
+				getApp().globalData.roomId = '';
+				console.log('----------退出---------');
+				this.handleUninstallEvents();
+			} catch (error) {
+
+			}
+
+		},
+		onUnload() {
+
+
+			try {
+				getApp().globalData.roomId = '';
+				console.log('----------退出---------');
+				this.exitRoom();
+				this.destroyInstance();
+				uni.$off('stop_live');
+			} catch (error) {
+
+			}
+
+
+		},
+		onBackPress(options) {
+			if (options.from === 'navigateBack') {
+				return false;
+			}
+
+			// if (options.from === 'backbutton') {
+			// 	return false;
+			// }
+
+
+			return true;
+
+
+			try {
+				getApp().globalData.roomId = '';
+				console.log('----------退出---------');
+				this.exitRoom();
+				this.destroyInstance();
+			} catch (error) {
+
+			}
+		},
+		mounted() {
+
+			// return;
+
+			//#ifndef APP-PLUS
+			return;
+			//#endif
+			let i = 0;
+			let start = () => {
+				user_info = uni.getStorageSync('user_info') || {};
+				this.userId = String(user_info.id);
+				console.log('this.userId*************************************', this.userId);
+				// 生成 userSig
+				const {
+					sdkAppId,
+					userSig
+				} = genTestUserSig(String(user_info.id));
+				this.sdkAppId = sdkAppId;
+				this.userSig = userSig;
+				if (!sdkAppId || !userSig) {
+					uni.showToast({
+						title: '请填写 sdkAppId、userSig',
+						icon: 'none'
+					});
+				}
+
+
+				if (this.status == 1) {
+
+					setTimeout(() => {
+						this.createTrtcCloud();
+						setTimeout(() => {
+							this.startLocalPreview();
+						}, 200);
+					}, 200);
+				}
+			}
+			if (this.status == 1) {
+				if (uni.getSystemInfoSync().platform === 'android') {
+					permision.requestAndroidPermission('android.permission.RECORD_AUDIO').then(res => {
+						i++;
+						if (i == 2) {
+							start();
+						}
+
+
+					});
+					permision.requestAndroidPermission('android.permission.CAMERA').then(res => {
+						i++;
+						if (i == 2) {
+							start();
+						}
+
+					});
+				}
+			} else {
+				start();
+			}
+
+			if (uni.getSystemInfoSync().platform == 'ios') {
+				setTimeout(() => {
+					start();
+				}, 200);
+			}
+
+		},
+		methods: {
+			get_radom_id() {
+				let s1 = Math.floor(Math.random() * 100000).toString();
+				let s2 = Math.floor(Math.random() * 10).toString();
+				let roomId = Number(String(4) + String(s1) + String(s2));
+				roomId = roomId;
+				this.roomId = roomId;
+				// this.userId = this.roomId;
+				getApp().globalData.roomId = roomId;
+			},
+			show_more_user() {
+				this.show_index += 15;
+			},
+			createTrtcCloud() {
+				this.trtcCloud = TrtcCloud.createInstance();
+				this.handleEvents();
+			},
+			enterRoom() {
+				try {
+					// 【1】创建实例
+					this.createTrtcCloud();
+					// this.handleEvents();
+					// 【2】进房
+					const {
+						roomId,
+						userId,
+						sdkAppId,
+						appScene,
+						userSig
+					} = this;
+					let param = {
+						roomId: Number(roomId),
+						// strRoomId: String(roomId),
+						// roomId: 10001,
+						userId,
+						sdkAppId,
+						userSig,
+						role: this.status == 1 || true ? 20 : 21, //主播
+					};
+					console.log('param', param);
+					this.trtcCloud.enterRoom(param, appScene);
+					// uni.showToast({
+					// 	title: 'enterRoom ',
+					// 	icon: 'none',
+					// });
+				} catch (error) {
+					console.log(`enterRoom error = ${JSON.stringify(error)}`);
+				}
+			},
+			exitRoom() {
+				try {
+					this.stopLocalAudio();
+					this.stopLocalPreview();
+					this.stopRemoteView();
+					this.trtcCloud.exitRoom();
+					this.remoteUserId = '';
+					this.destroyInstance();
+				} catch (e) {
+					// TODO handle the exception
+				}
+			},
+			// 开启本地音频采集和上行
+			startLocalAudio() {
+				this.trtcCloud.enableAudioVolumeEvaluation(300);
+				this.trtcCloud.startLocalAudio();
+			},
+			// 关闭本地音频采集和上行
+			stopLocalAudio() {
+				this.trtcCloud.stopLocalAudio();
+			},
+			// 本地预览
+			startLocalPreview() {
+				this.trtcCloud.startLocalPreview(this.isFrontCamera, this.userId);
+				// uni.showToast({
+				// 	title: 'localPreview',
+				// 	icon: 'none',
+				// });
+			},
+			stopLocalPreview() {
+				this.trtcCloud.stopLocalPreview();
+			},
+			// 切前置、后置
+			switchCamera() {
+				this.isFrontCamera = !this.isFrontCamera;
+				this.trtcCloud.switchCamera(this.isFrontCamera);
+			},
+			muteLocalVideo() {
+				this.localVideoMuteState = !this.localVideoMuteState;
+				this.trtcCloud.muteLocalVideo(TRTCVideoStreamType.TRTCVideoStreamTypeBig, this.localVideoMuteState);
+			},
+			muteLocalAudio() {
+				this.localAudioMuteState = !this.localAudioMuteState;
+				this.trtcCloud.muteLocalAudio(this.localAudioMuteState);
+			},
+			stopRemoteView() {
+				if (this.remoteUserId) {
+					this.trtcCloud.stopRemoteView(this.remoteUserId, this.streamType);
+				}
+			},
+			handleEvents() {
+				this.trtcCloud.on('onWarning', (res) => {
+					// uni.showToast({
+					// 	title: `onWarning: ${JSON.stringify(res)}`,
+					// 	icon: 'none',
+					// });
+				});
+				this.trtcCloud.on('onError', (res) => {
+					console.log('- onError: ', JSON.stringify(res));
+					// uni.showToast({
+					// 	title: `error: ${JSON.stringify(res)}`,
+					// 	icon: 'none',
+					// });
+					// return ;
+					return;
+					clearTimeout(this.timer11);
+					this.timer11 = setTimeout(() => {
+						if (res.code != -3319) {
+							if (this.status == 1) {
+
+								setTimeout(() => {
+									// this.createTrtcCloud();
+									setTimeout(() => {
+										this.startLocalPreview();
+									}, 200);
+								}, 200);
+							} else if (this.status == 2) {
+								setTimeout(() => {
+
+									this.enterRoom();
+									// this.stopLocalAudio();
+									setTimeout(() => {
+
+										this.trtcCloud.startRemoteView(this.roomId, this
+											.streamType, this
+											.roomId);
+									}, 200);
+								}, 200);
+							}
+						}
+
+					}, 200);
+				});
+				this.trtcCloud.on('onEnterRoom', (result) => {
+					console.log(`- onEnterRoom = ${result}`);
+					if (result > 0) {
+
+						// uni.showToast({
+						// 	title: `进房成功，耗时: ${result}ms`,
+						// 	icon: 'none',
+						// });
+						// uni.showToast(`进房成功，耗时: ${result}ms`);
+					} else {
+						console.log(`enter room failed，error code = ${result}`);
+					}
+				});
+				this.trtcCloud.on('onExitRoom', (reason) => {
+					const reasonList = ['主动调用 exitRoom 退房', '被服务器踢出当前房间', '当前房间整个被解散'];
+
+
+				});
+				this.trtcCloud.on('onFirstVideoFrame', (res) => {
+					console.log(`渲染的首帧画面响应 = ${JSON.stringify(res)}`);
+				});
+				this.trtcCloud.on('onRemoteUserLeaveRoom', (res) => {
+					// console.log(`主播离开 = ${JSON.stringify(res)}`,'主播用户id',this.remoteUserId);
+					if (res.userId == this.remoteUserId) {
+
+						this.exitRoom();
+						this.roomStatus = 3;
+					}
+				});
+				this.trtcCloud.on('onSendFirstLocalAudioFrame', (res) => {
+					console.log('声音。。。。。。。。。。。。。。。。。', res);
+				});
+				this.trtcCloud.on('onRemoteUserEnterRoom', (userId) => {
+					// this.remoteUserId = userId;
+					// console.log('this.remoteUserId',this.remoteUserId);
+					// this.remoteUserId = this.roomId;
+					console.log('this.remoteUserId', this.remoteUserId);
+					// uni.showToast({
+					// 	title: `远端进房: userId = ${userId}`,
+					// 	icon: 'none',
+					// });
+					console.log('远端进房: userId = ${userId}', userId);
+
+					this.trtcCloud.startRemoteView(this.remoteUserId, this.streamType, this
+						.remoteUserId);
+
+					// if (this.maikeInfo && this.maikeInfo.userId == userId) {
+					// 	this.trtcCloud.startRemoteView(this.maikeInfo.userId, this.streamType, this
+					// 		.maikeInfo.userId);
+					// } else if (this.remoteUserId == userId) {
+					// 	this.trtcCloud.startRemoteView(this.remoteUserId, this.streamType, this
+					// 		.remoteUserId);
+					// }
+				});
+				this.trtcCloud.on('onUserVideoAvailable', (res) => {
+					const {
+						userId,
+						available
+					} = res;
+					if (userId && available) {
+						// this.remoteUserId = userId;
+						// this.trtcCloud.startRemoteView(this.remoteUserId, this.streamType, this.remoteUserId);
+					}
+				});
+				this.trtcCloud.on('onUserVoiceVolume', (res) => {
+					// console.log('音量 = ', res);
+				});
+			},
+			handleUninstallEvents() {
+				this.trtcCloud.off('*');
+			},
+			toPage(url, type = 'to', login = false) {
+
+				console.log('type', type);
+				console.log('url', url);
+				if (login) {
+					if (!uni.getStorageSync('ACCESS_TOKEN')) {
+						uni.navigateTo({
+							url: '/pages/login/login'
+						});
+						return;
+					}
+				}!type && (type = 'to');
+				switch (type) {
+					case 'to':
+						return uni.navigateTo({
+							url: url
+						});
+					case 'back':
+						return uni.navigateBack({
+							delta: 1
+						});
+
+					case 'redirect':
+						return uni.redirectTo({
+							url: url
+						})
+					case '3':
+						return uni.redirectTo({
+							url: url
+						})
+					case 'relaunch':
+						return uni.reLaunch({
+							url: url
+						})
+					case 'switch':
+						return uni.switchTab({
+							url: url
+						})
+					case '4':
+						return uni.switchTab({
+							url: url
+						})
+				}
+
+			},
+			uniBack() {
+
+				if (this.status == 1 && this.roomStatus == 2) {
+					this.stopRoom();
+					return;
+				}
+				if (this.status == 2) {
+					//观众
+					this.exitRoom();
+				}
+
+				let page = getCurrentPages();
+				if (page.length > 1) {
+					uni.navigateBack({
+						delta: 1
+					});
+					return;
+				}
+				uni.reLaunch({
+					url: "/pages/shopping/shopping",
+				})
+			},
+			showToast(title = "", duration = 2000, icon = "none") {
+
+				// #ifdef APP-PLUS || APP-NVUE
+				plus.nativeUI.toast(title);
+				// #endif
+
+				// #ifndef APP-PLUS || APP-NVUE
+				uni.showToast({
+					title,
+					icon,
+					duration
+				})
+				// #endif
+
+			},
+			click(fn, ...params) {
+				let newTime = new Date().getTime();
+				if ((!this.onoff1 || (newTime - this.onoff1 > 500)) && fn) {
+					this.onoff1 = newTime;
+					fn(...params);
+				} else {
+					console.log("请稍后点击")
+				}
+			},
+
+			changeMaike() {
+				if (this.userDisable == true) {
+					this.showToast('你已被禁言');
+					return;
+				}
+				if (!this.maike) {
+					//开麦
+					this.startLocalAudio();
+				} else {
+					this.stopLocalAudio();
+				}
+				this.maike = !this.maike;
+				// requestApi.setMaike({
+				// 	roomId: this.roomId,
+				// 	status: this.maike ? 1 : 0,
+				// }).then(res => {
+				// 	if (res.status == 200) {
+				// 		this.change_list(user_info.id, 'closed', this.maike ? 1 : 0);
+				// 	}
+				// });
+			},
+
+
+			handle1() {
+				this.$refs.toast.open({
+					title: '理性',
+					desc: '分类可是大家发，十大考古收到撒旦开发，；声卡的扩大撒地方科。',
+				});
+			},
+			handle2() {
+				this.$refs.pay.open({
+					money: '199.99',
+				});
+			},
+			add_one(item) {
+
+				this.$refs.giftTime.add_one({
+					id: new Date().getTime(),
+					imgUrl: item.front,
+					num: item.num || '1',
+					userName: item.userName || '',
+					name: item.name,
+				});
+			},
+			open_gift() {
+				this.$refs.sendGift.open();
+			},
+			//开始直播
+			startRoom() {
+
+
+				this.stopLocalPreview();
+				this.enterRoom();
+				this.startLocalPreview();
+				this.startLocalAudio();
+				this.roomStatus = 2;
+
+			},
+			//结束直播
+			stopRoom() {
+				// this.showToast('ss');
+				this.$refs.toast.open({
+					desc: '是否结束当前直播',
+					success: () => {
+						this.exitRoom();
+						this.roomStatus = 3;
+					}
+				});
+
+			},
+			//获取直播间信息
+			getLiveDeailById() {
+				getLiveDetail(this.liveId).then(res => {
+					if (res.status != 200) {
+						uni.navigateBack();
+					};
+					if (res.data.status == 3 || res.data.status == 4) {
+						this.showToast('直播已结束');
+						setTimeout(() => {
+							uni.navigateBack();
+						}, 500);
+						return;
+					}
+					console.log('直播间信息', res);
+					this.liveRoomDetail = res.data;
+					this.roomId = Number(this.liveRoomDetail.roomId);
+					roomId = this.roomId;
+					getApp().globalData.roomId = roomId;
+					if (this.liveRoomDetail.goodsList) {
+						this.liveRoomDetail.goodsList.forEach(val => {
+							if (val.goodsSkuList) {
+								val.goodsSkuList = val.goodsSkuList.sort((v1, v2) => {
+									return v1.price > v2.price ? 1 : -1;
+								});
+								val.price = val.goodsSkuList[0].price;
+								val.scribingPrice = val.goodsSkuList[0].oriPrice;
+							}
+						});
+					}
+					this.$nextTick(() => {
+						this.$refs.goodsList.goodsList = this.liveRoomDetail.goodsList || [];
+						this.liveRoomDetail.goodsList.some(val => {
+							//讲解商品
+							if (val.explainStatus == 2) {
+								uni.$emit('talkGoods', val);
+								return true;
+							}
+							return false;
+						});
+
+					});
+					if(this.liveRoomDetail.liveLink && this.liveRoomDetail.liveLink.status == 2){
+						if(this.liveRoomDetail.liveLink.userId != this.user_info.id){
+							this.maikeInfo = {
+								userId: String(this.liveRoomDetail.liveLink.userId),
+							}
+						}
+					}
+					// this.remoteUserId = String(this.liveRoomDetail.userId);
+					if (this.status == 2) {
+						// this.createTrtcCloud();
+						// this.createTrtcCloud();
+						this.enterRoom();
+						setTimeout(() => {
+							// this.stopLocalAudio();
+							// this.trtcCloud.startRemoteView(this.roomId, this.streamType, this
+							// 	.roomId);
+
+						}, 200);
+					}
+				})
+			},
+			//观众打开麦克风
+			openUserMaike() {
+				console.log('xxxxxxxxxxx打开麦克风xxxxxxxxxxxx');
+
+				this.openUserStatus = true;
+				setTimeout(() => {
+					// this.trtcCloud.exitRoom();
+					this.enterRoom();
+					// this.startLocalPreview();
+					this.startLocalAudio();
+					// this.startLocalAudio();
+					console.log('开始说话加入房间。。。。。。。。。。。。。。。。。。')
+				}, 200);
+
+			},
+			//观众关闭麦克风
+			closeUserMaike() {
+				console.log('xxxxxxxxxxx关闭麦克风xxxxxxxxxxxx');
+				// this.stopLocalPreview();
+				this.stopLocalAudio();
+				setTimeout(() => {
+					this.openUserStatus = false;
+				}, 200);
+
+			},
+			requestLinkChange(data) {
+				let user_info = uni.getStorageSync('user_info');
+				if (data.status == 2) {
+
+					if (this.status == 1 || user_info.id != data.userId) {
+						//主播或者其他公众开启远程分支
+						console.log('xxxxxxxxxxxxxx开启远程分支xxxxxxxxxxxxxxxxxxxxx')
+						setTimeout(() => {
+							this.maikeInfo = {
+								userId: String(data.userId),
+							}
+							// setTimeout(() => {
+							// 	this.trtcCloud.startRemoteView(37755, this.streamType, 37755);
+							// }, 1000);
+						}, 1000)
+					} else if (this.status == 2 && user_info.id == data.userId) {
+						this.openUserMaike();
+					} else {
+						this.closeUserMaike();
+					}
+
+				} else {
+					this.maikeInfo = null
+					console.log('xxxxxxxxxxxxxx关闭远程分支xxxxxxxxxxxxxxxxxxxxx')
+					if (this.openUserStatus) {
+						this.closeUserMaike();
+					}
+				}
+				console.log('连麦状态改变', data);
+			},
+
+		}
+	}
+</script>
+
+<style lang="scss">
+	/* #ifdef H5 */
+	page {
+		background-color: #877065;
+	}
+
+	/* #endif */
+
+
+	.start-live-btn {
+		justify-content: center;
+		align-items: center;
+		width: 200rpx;
+		height: 200rpx;
+		background-color: rgba(0, 0, 0, 0.7);
+		border-radius: 100rpx;
+		margin-top: 300rpx;
+	}
+
+	.live-time-dot {
+		width: 14rpx;
+		height: 14rpx;
+		border-radius: 7rpx;
+		background-color: #42C366;
+		margin-right: 12rpx;
+	}
+
+	.live-box-danger-text {
+		width: 540rpx;
+		background-color: rgba(0, 0, 0, 0.39);
+		border-radius: 20rpx;
+		padding: 22rpx 20rpx;
+		line-height: 36rpx;
+	}
+
+	.live-gift-box {
+		position: fixed;
+		bottom: 700rpx;
+		right: 20rpx;
+	}
+
+	.live-gift-send-box {
+		width: 72rpx;
+		height: 72rpx;
+		border-radius: 36rpx;
+		background-color: rgba(0, 0, 0, 0.7);
+		justify-content: center;
+		align-items: center;
+	}
+
+	.live-box-bottom {
+		position: fixed;
+		bottom: 186rpx;
+		left: 0rpx;
+	}
+
+
+	.iconfont1 {
+		font-family: iconfont1;
+	}
+</style>

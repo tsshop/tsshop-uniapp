@@ -1,0 +1,108 @@
+<template>
+	<view>
+
+		<!-- <view style="position: fixed;width: 750rpx;top:0;" :style="{height:screenHeight}">
+			<image style="width: 750rpx;" :style="{height:screenHeight}" mode="aspectFill" src="../../static/lives/bg.jpg"></image>
+		</view> -->
+		
+		<statusBar></statusBar>
+		
+		
+		
+
+		<livesHeader></livesHeader>
+		
+		<view>
+			<text @tap="showDefaultToast">显示弹窗</text>
+		</view>
+
+		<view style="position: fixed;bottom: 184rpx;left:0;">
+			<view>
+				<roomUsers></roomUsers>
+			</view>
+			<view style="padding-left:20rpx;">
+				<goodsBox></goodsBox>
+			</view>
+		</view>
+
+
+		<livesBottom></livesBottom>
+		<likes></likes>
+
+		<connectUser></connectUser>
+		<goodsList></goodsList>
+		<sendGift></sendGift>
+
+
+		<giftTime></giftTime>
+		
+		<qq-bottom-input></qq-bottom-input>
+		<toast-nvue ref="toast"></toast-nvue>
+		
+
+
+	</view>
+</template>
+
+<script>
+	import livesBottom from '@/components/lives/lives-bottom.vue';
+	import likes from '@/components/lives/likes.vue';
+	import goodsBox from '@/components/lives/goods-box.vue';
+	import livesHeader from '@/components/lives/lives-header.vue';
+	import connectUser from '@/components/lives/connect-user.vue';
+	import goodsList from '@/components/lives/goods-list.vue';
+	import sendGift from '@/pages/chat/components/send-gift.vue';
+	import giftTime from '@/pages/chat/components/gift-time.vue';
+	import roomUsers from '@/pages/chat/components/room-users.vue';
+	export default {
+		components: {
+			livesBottom,
+			likes,
+			goodsBox,
+			livesHeader,
+			connectUser,
+			goodsList,
+			sendGift,
+			giftTime,
+			roomUsers
+		},
+		data() {
+			return {
+				statusBar: getApp().globalData.statusBar + 'px',
+				screenHeight: getApp().globalData.screenHeight + 'px'
+			};
+		},
+		onLoad() {
+			// #ifdef APP-NVUE
+			const domModule = uni.requireNativePlugin('dom');
+			domModule.addRule('fontFace', {
+				'fontFamily': "iconfont1",
+				'src': "url('http://at.alicdn.com/t/c/font_4083804_wi0yfelwd8.ttf?t=1684894665465')"
+			});
+			// #endif
+		},
+		methods:{
+			showDefaultToast(){
+				this.$refs.toast.open({
+					desc:'',
+					title:'是否退出直播间',
+				});
+			},
+		}
+
+	}
+</script>
+
+<style lang="scss">
+	page {
+		/* #ifdef H5 */
+		// background: url(../../static/lives/bg.jpg) left top / 100% auto no-repeat;
+		/* #endif */
+
+
+	}
+
+	.iconfont1 {
+		font-family: iconfont1;
+	}
+</style>

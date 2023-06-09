@@ -1,0 +1,211 @@
+{
+    "name" : "TSSHOP",
+    "appid" : "__UNI__07A006B",
+    "description" : "商城",
+    "versionName" : "1.0.0",
+    "versionCode" : 100,
+    "transformPx" : false,
+    "app-plus" : {
+        /* 5+App特有相关 */
+        "usingComponents" : true,
+        "nvueCompiler" : "uni-app",
+        "splashscreen" : {
+            "alwaysShowBeforeRender" : false,
+            "waiting" : false,
+            "autoclose" : true,
+            "delay" : 0
+        },
+        "modules" : {
+            "Speech" : {},
+            "Share" : {},
+            "Geolocation" : {},
+            "Payment" : {},
+            "Camera" : {}
+        },
+        "safearea" : {
+            "background" : "#FFFFFF",
+            "bottom" : {
+                "offset" : "none"
+            }
+        },
+        /* 模块配置 */
+        "distribute" : {
+            /* 应用发布信息 */
+            "android" : {
+                /* android打包配置 */
+                "permissions" : [
+                    "<uses-feature android:name=\"android.hardware.camera\"/>",
+                    "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CAMERA\"/>",
+                    "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
+                    "<uses-permission android:name=\"android.permission.HARDWARE_TEST\"/>",
+                    "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+                    "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\"/>",
+                    "<uses-permission android:name=\"android.permission.MOUNT_FORMAT_FILESYSTEMS\"/>",
+                    "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>",
+                    "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
+                    "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
+                ],
+                "schemes" : "tsshop",
+                "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ]
+            },
+            "ios" : {
+                "urltypes" : "tsshop",
+                "plistcmds" : [
+                    "Set :NSMicrophoneUsageDescription 获取语音权限以进行语音输入",
+                    "Set :NSPhotoLibraryUsageDescription 从相册选择图片作为用户头像",
+                    "Set :NSCameraUsageDescription 用户使用相机拍摄图片作为自定义头像",
+                    "Set :NSPhotoLibraryAddUsageDescription 保存图片到相册"
+                ],
+                "privacyDescription" : {
+                    "NSLocationWhenInUseUsageDescription" : "该应用需要你的地理位置，以便为您提供当前位置信息",
+                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "该应用需要持续获取用户地理位置，以便为您提供当前位置信息",
+                    "NSPhotoLibraryUsageDescription" : "该应用需要读取你的相册，以便为您编辑上传自定义头像",
+                    "NSPhotoLibraryAddUsageDescription" : "该应用需要读取你的相册，以便为您编辑上传自定义头像",
+                    "NSCameraUsageDescription" : "该应用需要你的相机，以便您拍摄图片编辑上传自定义头像",
+                    "NSMicrophoneUsageDescription" : "该应用需要使用你的麦克风，以便口语练习测评获取您的声音",
+                    "NSLocationAlwaysUsageDescription" : "该应用需要你的地理位置，以便为您提供当前位置信息",
+                    "NSCalendarsUsageDescription" : "该应用需要获取你的日历，以便为您提供学习记录，更好的体验",
+                    "NSRemindersUsageDescription" : "该应用需要获取你的提醒事项，以便为您提供学习记录，更好的体验"
+                },
+                "dSYMs" : false,
+                "UIBackgroundModes" : "audio",
+                "idfa" : false
+            },
+            /* ios打包配置 */
+            "sdkConfigs" : {
+                "payment" : {
+                    "alipay" : {
+                        "__platform__" : [ "ios", "android" ]
+                    }
+                },
+                "ad" : {},
+                "speech" : {},
+                "share" : {},
+                "maps" : {
+                    "amap" : {
+                        "appkey_ios" : "",
+                        "appkey_android" : ""
+                    }
+                },
+                "push" : {},
+                "geolocation" : {
+                    "system" : {
+                        "__platform__" : [ "android" ]
+                    }
+                }
+            },
+            "icons" : {
+                "android" : {
+                    "hdpi" : "unpackage/res/icons/72x72.png",
+                    "xhdpi" : "unpackage/res/icons/96x96.png",
+                    "xxhdpi" : "unpackage/res/icons/144x144.png",
+                    "xxxhdpi" : "unpackage/res/icons/192x192.png"
+                },
+                "ios" : {
+                    "appstore" : "unpackage/res/icons/1024x1024.png",
+                    "ipad" : {
+                        "app" : "unpackage/res/icons/76x76.png",
+                        "app@2x" : "unpackage/res/icons/152x152.png",
+                        "notification" : "unpackage/res/icons/20x20.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "proapp@2x" : "unpackage/res/icons/167x167.png",
+                        "settings" : "unpackage/res/icons/29x29.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "spotlight" : "unpackage/res/icons/40x40.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png"
+                    },
+                    "iphone" : {
+                        "app@2x" : "unpackage/res/icons/120x120.png",
+                        "app@3x" : "unpackage/res/icons/180x180.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "notification@3x" : "unpackage/res/icons/60x60.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "settings@3x" : "unpackage/res/icons/87x87.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png",
+                        "spotlight@3x" : "unpackage/res/icons/120x120.png"
+                    }
+                }
+            },
+            "splashscreen" : {
+                "androidStyle" : "common",
+                "android" : {
+                    "hdpi" : "C:/Users/H/Desktop/项目图片/QQ截图20230114161841.png",
+                    "xhdpi" : "C:/Users/H/Desktop/项目图片/QQ截图20230114161841.png",
+                    "xxhdpi" : "C:/Users/H/Desktop/项目图片/QQ截图20230114161841.png"
+                },
+                "useOriginalMsgbox" : true
+            }
+        },
+        "nativePlugins" : {
+            "TRTCCloudUniPlugin-TRTCCloudImpl" : {
+                "__plugin_info__" : {
+                    "name" : "【官方】腾讯云实时音视频SDK",
+                    "description" : "uni-app TRTC SDK 是腾讯云实时音视频通讯解决方案在 uni-app 上的 SDK，提供实时音视频服务",
+                    "platforms" : "Android,iOS",
+                    "url" : "https://ext.dcloud.net.cn/plugin?id=7774",
+                    "android_package_name" : "com.tsshop.tsshop",
+                    "ios_bundle_id" : "com.tsshop.tsshop",
+                    "isCloud" : true,
+                    "bought" : 1,
+                    "pid" : "7774",
+                    "parameters" : {}
+                }
+            }
+        }
+    },
+    /* SDK配置 */
+    "quickapp" : {},
+    /* 快应用特有相关 */
+    "mp-weixin" : {
+        "appid" : "",
+        "setting" : {
+            "urlCheck" : true,
+            "minified" : true,
+            "postcss" : true,
+            "es6" : true
+        },
+        "usingComponents" : true,
+        "permission" : {
+            "scope.userLocation" : {
+                "desc" : "你的位置信息将用于小程序位置接口的效果展示"
+            }
+        },
+        "requiredPrivateInfos" : [ "getLocation", "chooseLocation" ]
+    },
+    "h5" : {
+        "devServer" : {
+            "proxy" : {
+                "/api" : {
+                    "target" : "http://localhost:9074/api",
+                    "changeOrigin" : true,
+                    "ws" : true,
+                    "pathRewrite" : {
+                        "^/api" : ""
+                    }
+                }
+            },
+            "https" : false,
+            "port" : 9074
+        },
+        "router" : {
+            "base" : "./"
+        },
+        "title" : "TSSHOP",
+        "sdkConfigs" : {
+            "maps" : {}
+        }
+    },
+    "fallbackLocale" : "zh-Hans"
+}

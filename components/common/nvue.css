@@ -1,0 +1,211 @@
+.flex {
+	display: flex;
+	flex-direction: row;
+}
+
+.flex-y {
+	flex-direction: column;
+}
+
+.flex-x-start {
+	justify-content: flex-start;
+}
+
+.flex-x-center {
+	justify-content: center;
+}
+
+.flex-x-end {
+	justify-content: flex-end;
+}
+
+.flex-x-btw {
+	justify-content: space-between;
+}
+
+.flex-x-ar {
+	justify-content: space-around;
+}
+
+.flex-y-start {
+	align-items: flex-start;
+}
+
+.flex-y-center {
+	align-items: center;
+}
+
+.flex-y-end {
+	align-items: flex-end;
+
+}
+
+.flex-x-y {
+	justify-content: center;
+	align-items: center;
+}
+
+.flex-1 {
+	flex: 1;
+}
+
+.flex-2 {
+	flex: 2;
+}
+
+.fs-18 {
+	font-size: 18rpx;
+}
+
+.fs-20 {
+	font-size: 20rpx;
+}
+
+.fs-22 {
+	font-size: 22rpx;
+}
+
+.fs-24 {
+	font-size: 24rpx;
+}
+
+.fs-26 {
+	font-size: 26rpx;
+}
+
+.fs-28 {
+	font-size: 28rpx;
+}
+
+.fs-30 {
+	font-size: 30rpx;
+}
+
+.fs-32 {
+	font-size: 32rpx;
+}
+
+
+.fs-34 {
+	font-size: 34rpx;
+}
+
+.fs-36 {
+	font-size: 36rpx;
+}
+
+.fs-38 {
+	font-size: 38rpx;
+}
+
+.fs-40 {
+	font-size: 40rpx;
+}
+
+.fs-42 {
+	font-size: 42rpx;
+}
+
+.fs-44 {
+	font-size: 44rpx;
+}
+
+.fs-46 {
+	font-size: 46rpx;
+}
+
+.fs-48 {
+	font-size: 48rpx;
+}
+
+.fs-50 {
+	font-size: 50rpx;
+}
+
+.fs-60 {
+	font-size: 60rpx;
+}
+
+.mt-10 {
+	margin-top: 10rpx;
+}
+
+.ml-10 {
+	margin-left: 10rpx;
+}
+
+.mr-10 {
+	margin-right: 10rpx;
+}
+
+.mb-10 {
+	margin-bottom: 10rpx;
+}
+
+.mt-20 {
+	margin-top: 20rpx;
+}
+
+.ml-20 {
+	margin-left: 20rpx;
+}
+
+.mr-20 {
+	margin-right: 20rpx;
+}
+
+.pb-20 {
+	padding-bottom: 20rpx;
+}
+
+.pt-10 {
+	padding-top: 10rpx;
+}
+
+.pl-10 {
+	padding-left: 10rpx;
+}
+
+.pr-10 {
+	padding-right: 10rpx;
+}
+
+.pb-10 {
+	padding-bottom: 10rpx;
+}
+
+.pt-20 {
+	padding-top: 20rpx;
+}
+
+.pl-20 {
+	padding-left: 20rpx;
+}
+
+.pr-20 {
+	padding-right: 20rpx;
+}
+
+.pb-20 {
+	padding-bottom: 20rpx;
+}
+
+.color-ffffff {
+	color: #FFFFFF;
+}
+
+.color-666666 {
+	color: #666666;
+}
+
+.color-000000 {
+	color: #000;
+}
+
+.color-323232 {
+	color: #323232;
+}
+
+.iconfont1 {
+	font-family: iconfont1;
+}

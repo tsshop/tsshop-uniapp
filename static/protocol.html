@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>隐私协议</title>
+</head>
+<body>
+	<div id="content" style="margin-bottom: 20rpx;text-indent: 2em;white-space: pre-line;"></div>
+	<script>
+		function getInfo() {
+			let url = 'http://localhost:9073/api/api'
+            fetch(url + '/agreement/info').then(res => {
+                return res.text()
+            }).then(res => {
+                let _res = JSON.parse(res)
+                if (_res.status === 200) {
+                    info = _res.data
+					changeContent(info)
+                }
+            }).catch(err => {
+				console.error(err)
+            })
+
+        }
+        getInfo()
+		let content = document.getElementById('content')
+	    function changeContent(info) {
+			document.title = info.serviceTitle
+			content.innerHTML = info.serviceAgreement
+		}
+	</script>
+</body>
+</html>

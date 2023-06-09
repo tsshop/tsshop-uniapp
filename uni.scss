@@ -1,0 +1,102 @@
+/* #ifndef APP-NVUE */
+@import '@/uni_modules/uni-scss/variables.scss';
+
+.uni-navbar--border[data-v-6bda1a90] {
+    border-bottom-width: 0px !important;
+    border-bottom-style: solid;
+    border-bottom-color: #eee;
+}
+.uni-navbar--shadow[data-v-6bda1a90] {
+    box-shadow: 0 0px 0px #ccc !important;
+}
+
+uni-toast {
+	z-index: 10000;
+	font-family: Monospaced Number, Chinese Quote, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Helvetica Neue, Helvetica, Arial, sans-serif !important;
+	
+}
+/* #ifdef MP-WEIXIN || APP-PLUS */
+		::-webkit-scrollbar {
+		    display: none;
+		    width: 0 !important;
+		    height: 0 !important;
+		    -webkit-appearance: none;
+		    background: transparent;
+		    color: transparent;
+		  }
+	/* #endif */
+	
+	/* 解决H5 的问题 */
+	/* #ifdef H5 */
+	    uni-scroll-view .uni-scroll-view::-webkit-scrollbar {
+	    	/* 隐藏滚动条，但依旧具备可以滚动的功能 */
+			display: none;
+		    width: 0 !important;
+		    height: 0 !important;
+		    -webkit-appearance: none;
+		    background: transparent;
+		    color: transparent;
+	    }
+	/* #endif */
+.click-bg{
+	background-color: #f1f1f1;
+}
+.share-clear {
+	display: block;
+	margin: 0;
+	padding: 0;
+	background-color: rgba(0, 0, 0, 0);
+	box-sizing: border-box !important;
+	box-shadow: none;
+}
+.share-clear::after {
+	display: none !important;
+}
+
+
+// 直播版本的页面背景色
+$livePage: #f4f6f8;
+
+//字体颜色
+$color : #FF882F;
+//背景主题色
+$bgColor : #FF882F;
+//页面背景色
+$pageColor : #F5F6F7;
+//小按钮渐变色
+$smallBtnColor:linear-gradient(90deg, #FFA600 0%, #FF6D00 100%);
+//大按钮渐变色
+$btnColor : linear-gradient(270deg, #F2557C 0%, #F78E4B 100%);
+@mixin defaultBtn {
+	height: 100rpx;
+	background: $btnColor;
+	border-radius: 50rpx;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 36rpx;
+	color:#FFFFFF;
+}
+.default-btn {
+	@include defaultBtn;
+}
+.default-submit {
+	@include defaultBtn;
+	background: $bgColor;
+}
+.mlr-20{
+	margin-left: 20rpx;
+	margin-right: 20rpx;
+}
+.plr-20{
+	padding-left: 20rpx;
+	padding-right: 20rpx;
+}
+
+.ellipsis {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: 2; /* 显示2行文本 */
+}
+/* #endif */
